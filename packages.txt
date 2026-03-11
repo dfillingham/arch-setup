@@ -13,7 +13,6 @@ bind
 bluez
 bluez-utils
 bolt
-breeze-plymouth
 btop
 btrfs-progs
 cantarell-fonts
