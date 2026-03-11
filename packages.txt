@@ -36,6 +36,7 @@ ffmpegthumbnailer
 ffmpegthumbs
 firefox
 firefox-i18n-en-gb
+firewall-applet
 firewalld
 flatpak-kcm
 freetype2
