@@ -1,0 +1,21 @@
+#! /bin/sh
+
+# Restart winbind on network change event, force re-check for domain controller availability
+# Bug found when going into sleep mode when using smbcontrol offline/smbcontrol online, restart seems to work properly
+
+winbind_is_active=$(/bin/systemctl is-active winbind.service)
+test "${winbind_is_active}" = "active" || exit 0
+
+echo "$0: winbind is active, restarting if offline logon required"
+
+winbind_offline_logon=$(testparm -s --parameter-name "winbind offline logon" 2>/dev/null)
+
+# Convert to lowercase before testing
+test "${winbind_offline_logon,,}" = "yes" || exit 0
+
+case "$2" in
+    up|vpn-up|down)
+        echo "$0: network change detected, restarting winbind"
+        systemctl restart winbind
+    ;;
+esac

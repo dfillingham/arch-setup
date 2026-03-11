@@ -1,0 +1,5 @@
+Defaults pwfeedback
+Defaults passwd_timeout=0
+
+%domain\ admins ALL=(ALL:ALL) ALL
+%wheel ALL=(ALL:ALL) ALL

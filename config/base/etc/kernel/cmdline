@@ -1,0 +1,1 @@
+options rd.luks.name={{DEVUUID}}=root root=/dev/mapper/root rootflags=subvol=@ rw rootfstype=btrfs zswap.enabled=0

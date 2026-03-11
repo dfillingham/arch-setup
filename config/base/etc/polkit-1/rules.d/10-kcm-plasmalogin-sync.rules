@@ -1,0 +1,9 @@
+// Allow any user in the 'wheel' group to sync plasma settings to plasma-login-manager
+// without entering a password.
+
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.kde.kcontrol.kcmplasmalogin.sync" &&
+        subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+    }
+});
