@@ -116,6 +116,9 @@ mount --mkdir "$blkdevefi" /mnt/efi
 echo "Updating mirrorlist..."
 reflector --country Australia --threads 5 --save /etc/pacman.d/mirrorlist --protocol https --score 5
 
+echo "Adding cache server to mirror list..."
+echo 'CacheServer = http://arch-pkg-cache.in.fillingham.au/repo/archlinux/$repo/os/$arch' >> /etc/pacman.d/mirrorlist
+
 echo "Pacstrapping..."
 pacstrap -K /mnt base
 
