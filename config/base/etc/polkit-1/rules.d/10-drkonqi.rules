@@ -1,0 +1,12 @@
+// Allow caught plasma crashes to be saved to file without password
+// by users physically at machine 
+
+polkit.addRule(function (action, subject) {
+    if (
+        action.id == "org.kde.drkonqi.saveCoreToFile"
+        && subject.local
+        && subject.active
+    ) {
+        return polkit.Result.YES;
+    }
+});
