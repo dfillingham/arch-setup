@@ -196,6 +196,8 @@ systemctl --root=/mnt enable \
 # Setup KMSCON
 systemctl --root=/mnt disable getty@.service
 systemctl --root=/mnt enable kmsconvt@.service
+systemctl --root=/mnt disable getty@tty1.service
+systemctl --root=/mnt enable kmsconvt@tty1.service
 
 echo "Creating EFI boot entry for UKI..."
 efibootmgr -c -L "Arch Linux" -l '\EFI\Linux\arch-linux.efi' -d "$blkdisk"
