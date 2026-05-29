@@ -42,6 +42,7 @@ TERM screen
 TERM tmux-256color
 TERM xterm-kitty
 TERM xterm-ghostty
+TERM kmscon
 
 # EIGHTBIT, followed by '1' for on, '0' for off. (8-bit output)
 EIGHTBIT 1
