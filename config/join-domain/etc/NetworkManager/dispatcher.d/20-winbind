@@ -1,21 +1,38 @@
-#! /bin/sh
+#! /usr/bin/env bash
 
-# Restart winbind on network change event, force re-check for domain controller availability
-# Bug found when going into sleep mode when using smbcontrol offline/smbcontrol online, restart seems to work properly
+# When a network interface comes up, tell winbind to try going online
+# If the domain controller is reachable, the status will become online, if not, it will stay offline and cached logins will still work
+
+script_name=$(basename "$0")
+interface="$1"
+action="$2"
+
+function log {
+    local message="$1"
+    echo "$script_name: $message"
+}
+
+log "Script started with interface=$interface and action=$action"
 
 winbind_is_active=$(/bin/systemctl is-active winbind.service)
-test "${winbind_is_active}" = "active" || exit 0
 
-echo "$0: winbind is active, restarting if offline logon required"
+if [[ "$winbind_is_active" != "active" ]]; then
+    log "winbind is not active, exiting"
+    exit 0
+fi
+
+if [[ "$action" != "up" && "$action" != "vpn-up" ]]; then
+    log "action is not up or vpn-up, exiting"
+    exit 0
+fi
 
 winbind_offline_logon=$(testparm -s --parameter-name "winbind offline logon" 2>/dev/null)
 
 # Convert to lowercase before testing
-test "${winbind_offline_logon,,}" = "yes" || exit 0
+if [[ "${winbind_offline_logon,,}" != "yes" ]]; then
+    log "winbind offline logon is not enabled, exiting"
+    exit 0
+fi
 
-case "$2" in
-    up|vpn-up|down)
-        echo "$0: network change detected, restarting winbind"
-        systemctl restart winbind
-    ;;
-esac
+log "winbind is active and offline logon is enabled, attempting to set status to online"
+smbcontrol winbind online
