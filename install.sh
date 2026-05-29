@@ -185,6 +185,7 @@ systemctl --root=/mnt enable \
   NetworkManager-dispatcher.service \
   libvirtd.socket \
   linux-modules-cleanup.service \
+  paccache.timer \
   plasmalogin.service \
   power-profiles-daemon.service \
   sshd.service \
