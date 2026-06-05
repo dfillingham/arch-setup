@@ -99,6 +99,7 @@ btrfs subvolume create /mnt/@
 btrfs subvolume create /mnt/@home
 btrfs subvolume create /mnt/@pkg
 btrfs subvolume create /mnt/@log
+btrfs subvolume create /mnt/@swap
 
 umount /mnt
 
@@ -107,6 +108,10 @@ mount --mkdir -o compress=zstd,ssd,space_cache=v2,subvol=@ /dev/mapper/root /mnt
 mount --mkdir -o compress=zstd,ssd,space_cache=v2,subvol=@home /dev/mapper/root /mnt/home
 mount --mkdir -o compress=zstd,ssd,space_cache=v2,subvol=@pkg /dev/mapper/root /mnt/var/cache/pacman/pkg
 mount --mkdir -o compress=zstd,ssd,space_cache=v2,subvol=@log /dev/mapper/root /mnt/var/log
+mount --mkdir -o subvol=@swap /dev/mapper/root /mnt/swap
+
+btrfs filesystem mkswapfile --size 8G /mnt/swap/swapfile
+swapon /mnt/swap/swapfile
 
 devuuid=$(blkid -s UUID -o value "$blkdevroot")
 
