@@ -78,6 +78,7 @@ kwayland-integration
 libappindicator-gtk3
 libgsf
 libopenraw
+libreoffice-fresh
 libva-utils
 libvirt
 linux
