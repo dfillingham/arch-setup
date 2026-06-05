@@ -138,6 +138,8 @@ unrar
 unzip
 upower
 usb_modeswitch
+usbmuxd
+usbutils
 util-linux
 uv
 vim
