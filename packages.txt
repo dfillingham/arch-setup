@@ -124,6 +124,7 @@ smartmontools
 smbclient
 socat
 spectacle
+strace
 systemd-ukify
 texinfo
 tmux
