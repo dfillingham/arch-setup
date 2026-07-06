@@ -1,0 +1,10 @@
+[Unit]
+Description=Tell winbind to go offline before a suspend
+Before=suspend.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash -c 'smbcontrol winbind offline || true'
+
+[Install]
+WantedBy=suspend.target
