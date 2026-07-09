@@ -42,6 +42,7 @@ flatpak-kcm
 freetype2
 fwupd
 git
+go
 gst-libav
 gst-plugin-pipewire
 gst-plugins-bad
