@@ -219,6 +219,10 @@ while true; do
     esac
 done
 
+# Have to change the hostname to of the running install environment before doing domain join
+# Otherwise, machine will join with name "archiso"
+hostnamectl set-hostname "$newhostname"
+
 echo "Copying config files..."
 cp -r ./config/join-domain/. /mnt
 
