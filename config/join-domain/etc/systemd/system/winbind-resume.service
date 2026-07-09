@@ -1,0 +1,11 @@
+[Unit]
+Description=Restart winbind after resuming from suspend/hibernate (if enabled)
+After=suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target
+
+[Service]
+Type=oneshot
+ExecCondition=/usr/bin/systemctl is-enabled --quiet winbind.service
+ExecStart=/usr/bin/systemctl restart winbind.service
+
+[Install]
+WantedBy=suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target
