@@ -205,6 +205,20 @@ systemctl --root=/mnt enable kmsconvt@.service
 systemctl --root=/mnt disable getty@tty1.service
 systemctl --root=/mnt enable kmsconvt@tty1.service
 
+# Install yay
+arch-chroot /mnt useradd -m -G wheel builduser
+echo "builduser ALL=(ALL) NOPASSWD: ALL" > /mnt/etc/sudoers.d/builduser
+chmod 0440 /mnt/etc/sudoers.d/builduser
+arch-chroot /mnt runuser -u builduser -- bash -c '
+    set -e
+    cd /home/builduser
+    git clone https://aur.archlinux.org/yay.git
+    cd yay
+    makepkg -si --noconfirm
+'
+rm -f /mnt/etc/sudoers.d/builduser
+arch-chroot /mnt userdel -r builduser
+
 echo "Creating EFI boot entry for UKI..."
 efibootmgr -c -L "Arch Linux" -l '\EFI\Linux\arch-linux.efi' -d "$blkdisk"
 
