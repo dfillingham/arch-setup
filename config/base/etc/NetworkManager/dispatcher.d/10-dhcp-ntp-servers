@@ -1,0 +1,28 @@
+#!/bin/sh
+
+[ -z "$CONNECTION_UUID" ] && exit 0
+
+INTERFACE="$1"
+ACTION="$2"
+DIRECTORY=/etc/systemd/timesyncd.conf.d
+FILENAME="99-${CONNECTION_UUID}-ntp.conf"
+
+case $ACTION in
+up | dhcp4-change | dhcp6-change)
+	# `DHCP6_DHCP6_NTP_SERVERS` with double `DHCP6` is the correct variable name as varified by `printenv` as of NetworkManager 1.56.0-1
+	set -- ${DHCP6_DHCP6_NTP_SERVERS-} ${DHCP4_NTP_SERVERS-}
+	servers=$*
+	[ -n "$servers" ] || exit 0
+	mkdir -p "${DIRECTORY}"
+	cat <<-EOF > "${DIRECTORY}/${FILENAME}"
+		[Time]
+		NTP=$servers
+	EOF
+	systemctl try-restart systemd-timesyncd.service
+	;;
+down)
+	rm -f "${DIRECTORY}/${FILENAME}" 
+	systemctl try-restart systemd-timesyncd.service
+	;;
+esac
+

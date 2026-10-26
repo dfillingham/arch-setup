@@ -156,6 +156,10 @@ arch-chroot /mnt hwclock --systohc
 echo "Generating locales..."
 arch-chroot /mnt locale-gen
 
+# Set permissions on NetworkManager dispatcher NTP script
+arch-chroot /mnt chown root:root /etc/NetworkManager/dispatcher.d/10-dhcp-ntp-servers
+arch-chroot /mnt chmod 755 /etc/NetworkManager/dispatcher.d/10-dhcp-ntp-servers
+
 echo "Enabling NTP..."
 arch-chroot /mnt timedatectl set-ntp true
 
