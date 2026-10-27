@@ -1,0 +1,73 @@
+#! /bin/bash
+
+debug_log () {
+    if [[ -n "$DEBUG_SET_OUTBOUND" ]]; then
+        printf '%s DEBUG: %s\n' "$SCRIPT_NAME" "$1" >&2
+    fi
+}
+
+[[ -f /tmp/.debug_set_outbound ]] && DEBUG_SET_OUTBOUND="true"
+
+SCRIPT_NAME=$(basename "$0")
+INTERFACE="$1"
+ACTION="$2"
+
+debug_log "Script started with interface=${INTERFACE} and action=${ACTION}"
+
+case "$ACTION" in
+    up|down|dhcp4-change|dhcp6-change|reapply|connectivity-change) ;;
+    *) exit 0 ;;
+esac
+
+
+# Bail if winbind is not running
+if  ! systemctl is-active --quiet winbind.service; then
+    debug_log "winbind.service is not active, exiting"
+    exit 0
+fi
+
+
+
+# Bail if winbind is running but can't figure out what domain we're joined to
+domain_zone=$(net ads info | awk -F': ' '/^Realm/ {print tolower($2)}')
+if [[ -z "${domain_zone}" ]]; then
+    debug_log "No domain zone found, exiting"
+    exit 0
+fi
+
+HOSTNAME=$(</etc/hostname)
+HOSTS=/etc/hosts
+TAG="# managed-by-nm-dispatcher: set-outbound-in-hostsfile"
+FQDN="${HOSTNAME}.${domain_zone}"
+
+debug_log "FQDN to be set in hosts file is: ${FQDN}"
+
+# IP Addresses systemd-resolved uses for outbound traffic
+ipv4_addr=$(
+    resolvectl query -4 --legend=no _outbound 2>/dev/null \
+    | awk 'NR==1 {print $2}'
+)
+
+ipv6_addr=$(
+    resolvectl query -6 --legend=no _outbound 2>/dev/null \
+    | awk 'NR==1 {print $2}'
+)
+
+debug_log "Got outbound IPv4 address: ${ipv4_addr}"
+debug_log "Got outbound IPv6 address: ${ipv6_addr}"
+
+
+tmp=$(mktemp) || exit 1
+trap 'rm -f "$tmp"' EXIT
+
+# Add everything from the hosts file except anything with our tag
+grep -vF "$TAG" "$HOSTS" > "$tmp"
+
+# Add our addresses at the bottom
+[[ -n "$ipv4_addr" ]] && printf '%s\t%s\t%s\n' "$ipv4_addr" "$FQDN" "$TAG" >> "$tmp"
+[[ -n "$ipv6_addr" ]] && printf '%s\t%s\t%s\n' "$ipv6_addr" "$FQDN" "$TAG" >> "$tmp"
+
+debug_log "Hosts file being written out as:"$'\n'"$(<"$tmp")"
+
+# Write in place (keeps inode, permissions and SELinux context)
+cat "$tmp" > "$HOSTS"

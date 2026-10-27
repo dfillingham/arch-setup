@@ -241,6 +241,14 @@ done
 # Otherwise, machine will join with name "archiso"
 hostnamectl set-hostname "$newhostname"
 
+# Add FQDN to 127.0.1.1 line /etc/hosts, before short label
+tmp=$(mktemp) || exit 1
+{
+    grep -v '^127\.0\.1\.1[[:space:]]' /mnt/etc/hosts
+    printf '127.0.1.1   %s %s\n' "$newhostname.ad.fillingham.au" "$newhostname"
+} > "$tmp"
+cat "$tmp" > /mnt/etc/hosts
+
 echo "Copying config files..."
 cp -r ./config/join-domain/. /mnt
 
@@ -249,6 +257,9 @@ systemctl --root=/mnt enable smb winbind
 echo "Setting permissions on NetworkManager dispatch script..."
 arch-chroot /mnt chown root:root /etc/NetworkManager/dispatcher.d/20-winbind
 arch-chroot /mnt chmod +x /etc/NetworkManager/dispatcher.d/20-winbind
+arch-chroot /mnt chown root:root /etc/NetworkManager/dispatcher.d/30-set-outbound-in-hostsfile
+arch-chroot /mnt chmod +x /etc/NetworkManager/dispatcher.d/30-set-outbound-in-hostsfile
+
 
 read -p "Enter the username of the account with permission to domain join: " djaccount
 arch-chroot /mnt net ads join -U "$djaccount"
