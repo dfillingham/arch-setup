@@ -267,6 +267,6 @@ EOF
 
 fi
 
-systemctl --root=/mnt enable winbind-offline-before-suspend.service winbind-resume.service
+systemctl --root=/mnt enable winbind-offline-before-suspend.service
 
 echo "You can now reboot! Don't forget to change the root user's password!"
